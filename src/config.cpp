@@ -52,6 +52,7 @@ static const struct QCommandLineConfigEntry flags[] =
     { QCommandLine::Option, '\0', "config", "Specifies JSON-formatted configuration file", QCommandLine::Optional },
     { QCommandLine::Option, '\0', "debug", "Prints additional warning and debug message: 'true' or 'false' (default)", QCommandLine::Optional },
     { QCommandLine::Option, '\0', "disk-cache", "Enables disk cache: 'true' or 'false' (default)", QCommandLine::Optional },
+    { QCommandLine::Option, '\0', "disk-cache-path", "Sets disk cache path (default ~/.qws/cache/Ofi Labs/PhantomJS)", QCommandLine::Optional },
     { QCommandLine::Option, '\0', "ignore-ssl-errors", "Ignores SSL errors (expired/self-signed certificate errors): 'true' or 'false' (default)", QCommandLine::Optional },
     { QCommandLine::Option, '\0', "load-images", "Loads all inlined images: 'true' (default) or 'false'", QCommandLine::Optional },
     { QCommandLine::Option, '\0', "local-storage-path", "Specifies the location for offline local storage", QCommandLine::Optional },
@@ -225,6 +226,17 @@ bool Config::diskCacheEnabled() const
 void Config::setDiskCacheEnabled(const bool value)
 {
     m_diskCacheEnabled = value;
+}
+
+QString Config::diskCachePath() const
+{
+    return m_diskCachePath;
+}
+
+void Config::setDiskCachePath(const QString value)
+{
+    QDir dir(value);
+    m_diskCachePath = dir.absolutePath();
 }
 
 int Config::maxDiskCacheSize() const
@@ -517,6 +529,7 @@ void Config::resetToDefaults()
     m_offlineStoragePath = QString();
     m_offlineStorageDefaultQuota = -1;
     m_diskCacheEnabled = false;
+    m_diskCachePath = "";
     m_maxDiskCacheSize = -1;
     m_ignoreSslErrors = false;
     m_localToRemoteUrlAccessEnabled = false;
@@ -632,6 +645,10 @@ void Config::handleOption(const QString &option, const QVariant &value)
 
     if (option == "disk-cache") {
         setDiskCacheEnabled(boolValue);
+    }
+
+    if (option == "disk-cache-path") {
+        setDiskCachePath(value.toString());
     }
 
     if (option == "ignore-ssl-errors") {
